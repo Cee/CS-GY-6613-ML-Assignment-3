@@ -13,12 +13,37 @@ class KNN:
 	def train(self, X, y):
 		#training logic here
 		#input is an array of features and labels
-		None
+
+		# As mentioned in the instruction,
+		# training here is just memorizing the data
+		self.features = X
+		self.labels = y
 
 	def predict(self, X):
 		#Run model here
 		#Return array of predictions where there is one prediction for each set of features
-		return None
+		prediction = np.array([])
+		for x in X:
+			# Calculate distance with each feature
+			distances = np.array([self.distance(x, f) for f in self.features])
+			# Zip with (distance, label)
+			neighbours = zip(distances, self.labels)
+			# Get sorted, pick top k
+			top_k_neighbours = sorted(neighbours, key=lambda x: x[0])[:self.k]
+			# Prediction
+			predict = self.majority([x[1] for x in top_k_neighbours])
+			# Append predict to ans
+			prediction = np.append(prediction, [predict])	
+		return prediction
+
+	def majority(self, neighbours):
+		count = 0
+		candidate = None
+		for n in neighbours:
+			if count == 0:
+				candidate = n
+			count += (1 if n == candidate else -1)
+		return candidate
 
 class ID3:
 	def __init__(self, nbins, data_range):
