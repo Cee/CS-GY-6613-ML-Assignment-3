@@ -100,7 +100,7 @@ class Perceptron:
 		#Return array of predictions where there is one prediction for each set of features
 		prediction = np.array([])
 		for x in X:
-			prediction = np.append(prediction, [1 if (np.dot(x, self.w) + self.b) > 0 else -1])	
+			prediction = np.append(prediction, [1 if (np.dot(x, self.w) + self.b) > 0 else 0])	
 		return prediction
 
 class MLP:
@@ -159,11 +159,16 @@ class FCLayer:
 
 	def forward(self, input):
 		#Write forward pass here
-		return None
+		self.x = input
+		return np.dot(self.x, self.w) + self.b
 
 	def backward(self, gradients):
 		#Write backward pass here
-		return None	
+		w_prime = np.dot(self.x.transpose(), gradients)
+		x_prime = np.dot(gradients, self.w.transpose())
+		self.w = self.w - self.lr * w_prime
+		self.b = self.b - self.lr * gradients
+		return x_prime
 
 class Sigmoid:
 
@@ -172,8 +177,9 @@ class Sigmoid:
 
 	def forward(self, input):
 		#Write forward pass here
-		return None
+		self.sigmoid = np.array([1 / (1 + np.exp(-x)) for x in input])
+		return self.sigmoid
 
 	def backward(self, gradients):
 		#Write backward pass here
-		return None	
+		return gradients * np.array([(1 - x) * x for x in self.sigmoid])
