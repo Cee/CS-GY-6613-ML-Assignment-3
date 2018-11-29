@@ -80,12 +80,26 @@ class Perceptron:
 	def train(self, X, y, steps):
 		#training logic here
 		#input is array of features and labels
-		None
+		
+		# map 1 to 1, 0 to -1
+		d = np.array([])
+		for x in y:
+			d = np.append(d, [1 if x == 1 else -1])
+		print(self.w)
+		for t in range(steps):
+			for i, x in enumerate(X):
+				# print(i, x)
+				if np.dot(X[i], self.w) * d[i] <= 0:
+					self.w = self.w + self.lr * X[i] * y[i]
+		print(self.w)
 
 	def predict(self, X):
 		#Run model here
 		#Return array of predictions where there is one prediction for each set of features
-		return None
+		prediction = np.array([])
+		for x in X:
+			prediction = np.append(prediction, [1 if np.dot(x, self.w) > 0 else -1])	
+		return prediction
 
 class MLP:
 	def __init__(self, w1, b1, w2, b2, lr):
