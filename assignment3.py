@@ -85,20 +85,21 @@ class Perceptron:
 		d = np.array([])
 		for x in y:
 			d = np.append(d, [1 if x == 1 else -1])
-		print(self.w)
+		# print(self.w)
 		for t in range(steps):
 			for i, x in enumerate(X):
 				# print(i, x)
-				if np.dot(X[i], self.w) * d[i] <= 0:
+				if (np.dot(X[i], self.w) + self.b[0]) * d[i] <= 0:
 					self.w = self.w + self.lr * X[i] * y[i]
-		print(self.w)
+					self.b = self.b + self.lr * y[i]
+		# print(self.w)
 
 	def predict(self, X):
 		#Run model here
 		#Return array of predictions where there is one prediction for each set of features
 		prediction = np.array([])
 		for x in X:
-			prediction = np.append(prediction, [1 if np.dot(x, self.w) > 0 else -1])	
+			prediction = np.append(prediction, [1 if (np.dot(x, self.w) + self.b) > 0 else -1])	
 		return prediction
 
 class MLP:
