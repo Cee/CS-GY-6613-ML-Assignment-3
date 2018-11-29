@@ -54,7 +54,7 @@ class ID3:
 
 	def preprocess(self, data):
 		#Our dataset only has continuous data
-		norm_data = (data - self.range[0]) / (self.range[1] - self.range[0])
+		norm_data = np.clip((data - self.range[0]) / (self.range[1] - self.range[0]), 0, 1)
 		categorical_data = np.floor(self.bin_size*norm_data).astype(int)
 		return categorical_data
 
