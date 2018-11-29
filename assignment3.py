@@ -86,12 +86,13 @@ class Perceptron:
 		for x in y:
 			d = np.append(d, [1 if x == 1 else -1])
 		# print(self.w)
-		for t in range(steps):
+		# for t in range(steps):
+		while steps > 0:
 			for i, x in enumerate(X):
-				# print(i, x)
 				if (np.dot(X[i], self.w) + self.b[0]) * d[i] <= 0:
 					self.w = self.w + self.lr * X[i] * y[i]
 					self.b = self.b + self.lr * y[i]
+					steps -= 1
 		# print(self.w)
 
 	def predict(self, X):
