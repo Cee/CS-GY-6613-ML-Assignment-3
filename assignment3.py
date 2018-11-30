@@ -92,6 +92,7 @@ class Perceptron:
 					self.b = self.b + self.lr * d_i
 					error = True
 					steps -= 1
+			# makes no error on training set, break
 			if not error:
 				break
 		# print(self.w)
