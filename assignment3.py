@@ -80,19 +80,20 @@ class Perceptron:
 	def train(self, X, y, steps):
 		#training logic here
 		#input is array of features and labels
-		
-		# map 1 to 1, 0 to -1
-		d = np.array([])
-		for x in y:
-			d = np.append(d, [1 if x == 1 else -1])
 		# print(self.w)
 		# for t in range(steps):
 		while steps > 0:
+			error = False
 			for i, x in enumerate(X):
-				if (np.dot(X[i], self.w) + self.b[0]) * d[i] <= 0:
-					self.w = self.w + self.lr * X[i] * y[i]
-					self.b = self.b + self.lr * y[i]
+				y_i = 1 if np.dot(self.w, X[i]) + self.b > 0 else -1
+				d_i = 1 if y[i] == 1 else -1
+				if not (y_i == d_i):
+					self.w = self.w + self.lr * d_i * X[i]
+					self.b = self.b + self.lr * d_i
+					error = True
 					steps -= 1
+			if not error:
+				break
 		# print(self.w)
 
 	def predict(self, X):
