@@ -46,6 +46,13 @@ class KNN:
 		return candidate
 
 class ID3:
+	class Node(object):
+		def __init__(self):
+			self.attribute = None # key
+			self.values = [] # mapping key -> values
+			self.children = [] # samples
+			self.label = None # if pure, mark 0 or 1
+
 	def __init__(self, nbins, data_range):
 		#Decision tree state here
 		#Feel free to add methods
@@ -62,12 +69,86 @@ class ID3:
 		#training logic here
 		#input is array of features and labels
 		categorical_data = self.preprocess(X)
+		# Mark attributes with 0 - (col - 1)
+		columns = np.size(categorical_data, 1)
+		attributes = np.arange(columns)
+		self.root = self.decision_tree_learning(categorical_data, attributes, None, y)
+
+	def decision_tree_learning(self, examples, attributes, parent_examples, y):
+		node = self.Node()
+		# 1) Examples is empty
+		if len(examples) == 0:
+			node.label = self.plurality_value(parent_examples)
+		# 2) Same classification
+		elif len(np.unique(y)) == 1:
+			node.label = y[-1]
+		# 3) Attributes is empty
+		elif len(attributes) == 0:
+			node.label = self.plurality_value(y)
+		# 4) Otherwise, pick the most important value
+		else:
+			A = np.argmax([self.gain(examples[:,attr], y) for attr in attributes])
+			node.attribute = A
+			# Generate nodes by value
+			for value in np.unique(examples[:,A]):
+				child_examples = examples[np.argwhere(examples[:,A] == value).ravel()]
+				remain_attributes = np.delete(attributes, A)
+				child_y = y[np.argwhere(examples[:,A] == value).ravel()]
+				subtree = self.decision_tree_learning(child_examples, remain_attributes, y, child_y)
+				node.values.append(value)
+				node.children.append(subtree)
+		return node
+
+	def entropy(self, p):
+		return -sum(x * np.log2(x) for x in p.values())
+
+	def gain(self, x, y):
+		p = self.prob(x)
+		info = 0
+		for key in p.keys():
+			i = np.argwhere(x == key).ravel()
+			info = info + p[key] * self.entropy(self.prob(y[i]))
+		return self.entropy(self.prob(y)) - info
+
+	def prob(self, x):
+		values = np.unique(x)
+		p = {}
+		for v in values:
+			p[v] = (x == v).sum() / x.size
+		return p
+
+	def plurality_value(self, y):
+		return self.majority(y)
+
+	def majority(self, neighbours):
+		count = 0
+		candidate = None
+		for n in neighbours:
+			if count == 0:
+				candidate = n
+			count += (1 if n == candidate else -1)
+		# print("candidate:", candidate)
+		return candidate
 
 	def predict(self, X):
 		#Run model here
 		#Return array of predictions where there is one prediction for each set of features
 		categorical_data = self.preprocess(X)
-		return None
+		prediction = np.array([])
+		for x in categorical_data:
+			# Append each prediction to answer
+			prediction = np.append(prediction, [self.traverse(self.root, x)])
+		# print(prediction)
+		return prediction
+
+	def traverse(self, node, x):
+		if node.label != None:
+			return node.label
+		value = x[node.attribute]
+		for i in range(len(node.values)):
+			if node.values[i] == value:
+				return self.traverse(node.children[i], x)
+		return -1
 
 class Perceptron:
 	def __init__(self, w, b, lr):
